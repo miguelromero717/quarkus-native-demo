@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  db_demo:
+    image: postgres:15.3-alpine
+    container_name: db_demo
+    env_file:
+      - .local.env
+    ports:
+      - "5439:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+    restart: on-failure
+  api_demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: quarkus-native-demo
+    container_name: api_demo
+    depends_on:
+      - db_demo
+    ports:
+      - "8080:8189"
+    networks:
+      - backend
+    restart: on-failure
+
+volumes:
+  db_data:
+
+networks:
+  backend:
